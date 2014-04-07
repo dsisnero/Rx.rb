@@ -13,6 +13,9 @@ module RX
       @gate = Mutex.new
     end
 
+    # Queues the action for execution. If the caller acquire the lock and becomes
+    # the owner, the queue is processed.  If the lock is already owned, the action
+    # is queued and will get processed by the owner.    
     def wait(&action)
       @gate.synchronize do
         @queue.push action unless @has_faulted
@@ -22,6 +25,8 @@ module RX
         else
           @is_acquired = true
         end
+
+
       end
 
       loop do
